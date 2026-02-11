@@ -108,6 +108,20 @@ def _paragraph_text(p: etree._Element) -> str:
     return "".join(parts)
 
 
+def _paragraph_text_all_runs(p: etree._Element) -> str:
+    # Include text from nested runs (e.g., inside hyperlinks) in document order.
+    parts: List[str] = []
+    for r in p.xpath(".//w:r", namespaces=NS):
+        for child in r:
+            if child.tag == w_tag("t"):
+                parts.append(child.text or "")
+            elif child.tag == w_tag("tab"):
+                parts.append("\t")
+            elif child.tag == w_tag("br"):
+                parts.append("\n")
+    return "".join(parts)
+
+
 def _paragraph_is_simple(p: etree._Element) -> bool:
     # We only rewrite paragraphs that are "run-only" with pPr first.
     children = list(p)
@@ -118,6 +132,24 @@ def _paragraph_is_simple(p: etree._Element) -> bool:
     # Skip hyperlinks/fields; rewriting them safely needs more logic.
     if p.xpath(".//w:hyperlink|.//w:fldChar|.//w:instrText", namespaces=NS):
         return False
+    return True
+
+
+def _first_textual_run_in_paragraph(p: etree._Element) -> Optional[etree._Element]:
+    runs = p.xpath(".//w:r[w:t]", namespaces=NS)
+    if runs:
+        return runs[0]
+    runs = p.xpath(".//w:r", namespaces=NS)
+    return runs[0] if runs else None
+
+
+def _apply_full_replace_to_paragraph(p: etree._Element, new_text: str, *, markup: bool) -> bool:
+    old_text = _paragraph_text_all_runs(p)
+    if old_text == new_text:
+        return False
+    context_run = _first_textual_run_in_paragraph(p)
+    new_children = _emit_changed_text(new_text, context_run, markup=markup)
+    _rewrite_paragraph_in_place(p, new_children)
     return True
 
 
@@ -392,12 +424,17 @@ def refine_from_amended(original_docx: Path, amended_docx: Path, out_docx: Path,
     changed = 0
     skipped = 0
     for p_orig, p_amend in zip(orig_paras, amend_paras):
-        if not _paragraph_is_simple(p_orig):
-            skipped += 1
-            continue
-        new_text = _paragraph_text(p_amend)
-        if _apply_diff_to_paragraph(p_orig, new_text, markup=markup):
-            changed += 1
+        new_text = _paragraph_text_all_runs(p_amend)
+        if _paragraph_is_simple(p_orig):
+            if _apply_diff_to_paragraph(p_orig, new_text, markup=markup):
+                changed += 1
+        else:
+            # Complex paragraphs (e.g., with hyperlinks/fields): use full-text
+            # replacement with local-style inheritance and additive markup.
+            if _apply_full_replace_to_paragraph(p_orig, new_text, markup=markup):
+                changed += 1
+            else:
+                skipped += 1
 
     _write_docx_with_replaced_part(original_docx, out_docx, part, orig_root)
     return changed, skipped
@@ -430,11 +467,14 @@ def refine_from_amended_text(
     changed = 0
     skipped = 0
     for p_orig, new_text in zip(orig_paras, amended_paras):
-        if not _paragraph_is_simple(p_orig):
-            skipped += 1
-            continue
-        if _apply_diff_to_paragraph(p_orig, new_text, markup=markup):
-            changed += 1
+        if _paragraph_is_simple(p_orig):
+            if _apply_diff_to_paragraph(p_orig, new_text, markup=markup):
+                changed += 1
+        else:
+            if _apply_full_replace_to_paragraph(p_orig, new_text, markup=markup):
+                changed += 1
+            else:
+                skipped += 1
 
     _write_docx_with_replaced_part(original_docx, out_docx, part, orig_root)
     return changed, skipped
