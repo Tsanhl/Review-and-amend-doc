@@ -45,6 +45,7 @@ If sub-agents are not available, emulate this architecture by running these role
 - **Preserve DOCX typography.** In refined DOCX output, retain the font family/size/style used by the user (including heading/body differences). Do not switch to a different default font.
 - **User-original style is the only style source.** All amendments must be based on the user’s original DOCX font, font size, and paragraph style at the exact local position. Never substitute styles from another file or from application defaults.
 - **Run-level style inheritance is mandatory (global rule).** For every inserted/amended DOCX segment (including bibliography lines), inherit typography from the nearest unchanged local run/paragraph in the same section: same font family, font size, paragraph style, spacing, indentation, and alignment. Never apply direct font-name or font-size overrides that differ from the user’s local style.
+- **Font-weight/emphasis integrity is mandatory.** Preserve the user’s original run emphasis (bold/italic/underline/small caps/case formatting) on unchanged text. For inserted or replaced text, clone local run emphasis first, then apply amendment markup additively only.
 - **Paragraph property inheritance is mandatory.** For inserted/amended lines, clone paragraph properties (`style`, line spacing, space before/after, indents, alignment) from adjacent unchanged paragraphs in the same section. Never leave inserted lines with default/blank paragraph properties when neighbors use explicit settings.
 - **No formatting mutations are allowed.** Improve content only. Do not change any existing formatting attribute (font, size, colour, italics, underline, spacing, alignment, indentation, list formatting, page layout, headers/footers, tables, captions, or styles). Only permitted formatting change: for implemented amendments, apply **bold + yellow highlight** to changed/added wording only (unless the user explicitly requests clean final mode).
 - **Clean final mode.** If the user requests “clean final / no amendments / no highlight”, do not add any bold/highlight; implement wording changes only.
@@ -76,6 +77,7 @@ If sub-agents are not available, emulate this architecture by running these role
 - **Report format default.** Report must be produced as DOCX by default; in-chat summary text alone never satisfies report delivery.
 - **Amendment markup default is mandatory.** Every implemented amendment output must visibly mark changed wording in **bold + yellow highlight**. Use clean, no-markup output only when the user explicitly asks for clean final/no highlight.
 - **Citation style lock:** If the user requests a citation style, follow that style. If no style is requested, default to OSCOLA.
+- **When OSCOLA is the active style:** all online URLs in footnotes and bibliography must be enclosed in angle brackets (`<...>`). If user-provided OSCOLA entries use plain URLs, normalise them to angle-bracket form.
 - **Bibliography-only requests are check-first.** If the user asks to review/amend the bibliography specifically, the primary task is to verify accuracy (real source, correct author/title/year/journal/court/legislation details, and compliance with the active citation style). Do not rewrite entries for style unless a concrete error is found.
 - **When OSCOLA is the active style:** do not add a trailing full stop at the end of bibliography entries (for example, `Author, Title (Year)` not `Author, Title (Year).`).
 - **When OSCOLA is the active style:** case names must be italicised in both footnotes and bibliography entries (for example, `*Donoghue v Stevenson*`).
@@ -169,7 +171,7 @@ Using the essay question (if provided) as the benchmark, review:
   - **Year, volume, issue, page numbers** — present and correctly formatted.
   - **Pinpoint references** — if a specific page or paragraph is cited, check it appears reasonable in context.
   - **Court and jurisdiction** — for case citations, ensure the court name and year are correct format.
-  - **URL and access date** — for online sources, ensure URL is present and access date is included if required by the style.
+  - **URL and access date** — for online sources, ensure URL is present and access date is included if required by the style. When OSCOLA is active, URLs must be in angle brackets (`<...>`) in footnotes.
   - **Cross-reference shorthand** — used correctly and referring to the right prior footnote. When OSCOLA is active: use 'ibid' (lowercase, not italicised) for immediately preceding source; use '(n X)' for earlier footnotes; do not use 'supra' or 'op cit' in OSCOLA.
   - **Sequential numbering** — footnotes must be numbered sequentially with no gaps or duplicates.
 - Cross-reference: every in-text citation must have a corresponding footnote, and every footnote must correspond to a claim in the text.
@@ -189,6 +191,7 @@ Using the essay question (if provided) as the benchmark, review:
   - Do NOT include pinpoint page references in bibliography entries (those belong only in footnotes).
   - Do NOT include 'ibid' or '(n X)' references in the bibliography.
   - Do NOT end bibliography entries with a full stop.
+  - For online sources, present URLs in angle brackets (`<...>`); if absent in user OSCOLA entries, add/normalise during amendment.
 - Correct formatting per source type (book, journal, case, legislation, treaty, online source, etc.).
 - No duplicate entries.
 - Consistent punctuation and formatting across all entries, including typographic curly quotes/apostrophes where applicable.

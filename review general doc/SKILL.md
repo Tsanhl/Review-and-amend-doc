@@ -60,6 +60,7 @@ Must deliver **review report DOCX** only (no implemented DOCX edits unless user 
 - **Zero introduced errors.** Never degrade correctness.
 - **Preserve author intent and voice** unless user asks for substantial stylistic shift.
 - **No formatting mutations.** Do not alter layout/style/typography except approved amendment markup.
+- **Font-weight/emphasis integrity is mandatory.** Preserve the user’s original run emphasis (bold/italic/underline and local typographic strength) on unchanged text. For inserted/replaced text, clone local run emphasis first, then apply amendment markup additively only.
 - **Amendment markup default is mandatory.** Changed wording must be **bold + yellow highlight** by default.
 - **Clean mode exception.** Only skip markup when user explicitly requests clean final/no highlight.
 - **Non-destructive workflow.** Never overwrite source DOCX; output a new file.
@@ -73,6 +74,7 @@ Must deliver **review report DOCX** only (no implemented DOCX edits unless user 
 - **Question/prompt alignment is mandatory.** If the user provides a question/prompt/rubric, evaluate and amend content against it directly. If none is provided, infer the likely question/thesis from the document and state that inference in the review report.
 - **Question-source flexibility is default.** The governing question may come from chat/terminal text or from inside the DOCX when the user says it is included there.
 - **Citation style rule:** follow the user-requested citation style. If none is requested, preserve dominant existing style and normalise internal consistency.
+- **When OSCOLA is the active style:** URLs in footnotes/references/bibliography must be enclosed in angle brackets (`<...>`). If user OSCOLA entries use plain URLs, normalise them to angle-bracket form.
 - **Output location guardrail.** Confirm destination before writing outputs to Desktop; otherwise use safe temp path and report it.
 - **Report artifact is mandatory.** A review request is not complete until a report file is created as `.docx` and its absolute path is returned.
 - **First-pass completeness gate.** For `review + amend`, never send final completion unless both the amended DOCX and review report DOCX exist at final paths.
