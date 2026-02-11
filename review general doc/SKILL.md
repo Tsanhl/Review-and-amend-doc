@@ -56,6 +56,7 @@ Must deliver **review report DOCX** only (no implemented DOCX edits unless user 
 
 - **Top-mark standard for amend.** Treat amend requests as a 10/10 refinement target.
 - **Auto-domain-expert mode is mandatory.** For each document, identify the likely professional area/topic and apply that domain’s professional standards, terminology expectations, and reasoning quality during review and amendment.
+- **Tone default and override.** Default tone is formal, academic, and professional. If the user explicitly requests a different tone, follow the user’s tone request.
 - **Zero introduced errors.** Never degrade correctness.
 - **Preserve author intent and voice** unless user asks for substantial stylistic shift.
 - **No formatting mutations.** Do not alter layout/style/typography except approved amendment markup.

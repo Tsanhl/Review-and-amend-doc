@@ -41,6 +41,7 @@ If sub-agents are not available, emulate this architecture by running these role
 
 - **Zero tolerance for introduced errors.** Every correction must improve the original — never introduce new mistakes.
 - **Preserve the author's voice and intent.** Do not rewrite the essay in a different style. Enhance, do not replace.
+- **Tone default and override.** Default tone is formal, academic, and professional (lawyer-grade). If the user explicitly requests a different tone, follow the user’s tone request.
 - **Preserve DOCX typography.** In refined DOCX output, retain the font family/size/style used by the user (including heading/body differences). Do not switch to a different default font.
 - **User-original style is the only style source.** All amendments must be based on the user’s original DOCX font, font size, and paragraph style at the exact local position. Never substitute styles from another file or from application defaults.
 - **Run-level style inheritance is mandatory (global rule).** For every inserted/amended DOCX segment (including bibliography lines), inherit typography from the nearest unchanged local run/paragraph in the same section: same font family, font size, paragraph style, spacing, indentation, and alignment. Never apply direct font-name or font-size overrides that differ from the user’s local style.
