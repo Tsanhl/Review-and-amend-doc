@@ -74,10 +74,10 @@ If sub-agents are not available, emulate this architecture by running these role
 - **First-pass completeness gate.** For `review + amend`, never send final completion unless both required files exist on disk: amended DOCX + review report DOCX.
 - **Report format default.** Report must be produced as DOCX by default; in-chat summary text alone never satisfies report delivery.
 - **Amendment markup default is mandatory.** Every implemented amendment output must visibly mark changed wording in **bold + yellow highlight**. Use clean, no-markup output only when the user explicitly asks for clean final/no highlight.
-- **Citation style lock:** Final delivered output must be fully OSCOLA for all citations and bibliography entries.
-- **Bibliography-only requests are check-first.** If the user asks to review/amend the bibliography specifically, the primary task is to verify accuracy (real source, correct author/title/year/journal/court/legislation details, and OSCOLA compliance). Do not rewrite entries for style unless a concrete error is found.
-- **OSCOLA bibliography punctuation rule.** Do not add a trailing full stop at the end of bibliography entries (for example, `Author, Title (Year)` not `Author, Title (Year).`).
-- **OSCOLA case-name italicisation rule.** Case names must be italicised in both footnotes and bibliography entries (for example, `*Donoghue v Stevenson*`).
+- **Citation style lock:** If the user requests a citation style, follow that style. If no style is requested, default to OSCOLA.
+- **Bibliography-only requests are check-first.** If the user asks to review/amend the bibliography specifically, the primary task is to verify accuracy (real source, correct author/title/year/journal/court/legislation details, and compliance with the active citation style). Do not rewrite entries for style unless a concrete error is found.
+- **When OSCOLA is the active style:** do not add a trailing full stop at the end of bibliography entries (for example, `Author, Title (Year)` not `Author, Title (Year).`).
+- **When OSCOLA is the active style:** case names must be italicised in both footnotes and bibliography entries (for example, `*Donoghue v Stevenson*`).
 - **Quote/apostrophe style preference.** Use typographic curly quotes/apostrophes in edited bibliography text (for example, `‘…’` and `’`), unless the user explicitly asks for straight quotes.
 
 ---
@@ -154,35 +154,35 @@ Using the essay question (if provided) as the benchmark, review:
   - **Existence and authenticity** — verify that the cited source actually exists. Use web search to confirm the source is real (correct author, title, publication, year). If a footnote references a **fabricated, non-existent, or hallucinated source**:
     1. Flag it clearly as fake/unverifiable.
     2. **Find a real, relevant, and accurate replacement source** that supports the same claim in the text. Search for genuine academic sources, case law, legislation, or authoritative publications that make the same or a closely related point.
-    3. Replace the fake footnote with the verified real source, formatted in OSCOLA.
+    3. Replace the fake footnote with the verified real source, formatted in the active citation style (default OSCOLA if no style is requested).
     4. Log the replacement in the changelog: `Fake: [original fake citation] → Replaced with: [real citation]`.
     5. If no suitable real source can be found to support the claim, flag the claim itself as unsupported and recommend the user either remove the claim or provide their own source.
-  - **Correct citation format** — use **OSCOLA only**. Convert any non-OSCOLA or mixed style citations to OSCOLA consistently across all footnotes.
+  - **Correct citation format** — follow the user-requested citation style; if no style is requested, use OSCOLA. Convert mixed citations to the active style consistently across all footnotes.
   - **Metadata match (mandatory)** — ensure cited metadata matches the real source record:
     - Journal/article sources: author(s), article title, journal title, year, volume/issue, and first page/pinpoint must align.
     - Cases: case name, neutral citation or report citation, court, and year must align exactly.
     - Legislation: instrument title, year, section/regulation reference, and jurisdiction must align.
     - Books/chapters: author/editor, title, edition/year, publisher, and pinpoint (if used) must align.
-  - **Author name(s)** — correctly spelled and in correct OSCOLA order.
+  - **Author name(s)** — correctly spelled and in correct order for the active citation style.
   - **Title** — italicised or quoted correctly per source type (book, journal article, case, legislation, online source).
   - **Year, volume, issue, page numbers** — present and correctly formatted.
   - **Pinpoint references** — if a specific page or paragraph is cited, check it appears reasonable in context.
   - **Court and jurisdiction** — for case citations, ensure the court name and year are correct format.
   - **URL and access date** — for online sources, ensure URL is present and access date is included if required by the style.
-  - **Ibid, supra, op cit** — used correctly and referring to the right prior footnote. In OSCOLA: use 'ibid' (lowercase, not italicised) for immediately preceding source; use '(n X)' cross-referencing for earlier footnotes — never use 'supra' or 'op cit' in OSCOLA.
+  - **Cross-reference shorthand** — used correctly and referring to the right prior footnote. When OSCOLA is active: use 'ibid' (lowercase, not italicised) for immediately preceding source; use '(n X)' for earlier footnotes; do not use 'supra' or 'op cit' in OSCOLA.
   - **Sequential numbering** — footnotes must be numbered sequentially with no gaps or duplicates.
 - Cross-reference: every in-text citation must have a corresponding footnote, and every footnote must correspond to a claim in the text.
 
 ### 3C — Bibliography / Reference List accuracy
 - Every source cited in footnotes must appear in the bibliography (and vice versa — flag orphan entries).
 - Apply the same verification standard to both user-original entries and any entries added/replaced/amended during review.
-- Bibliography entries must follow **OSCOLA** format only.
+- Bibliography entries must follow the active citation style (default OSCOLA if no style is requested).
 - For bibliography-focused requests, run an **accuracy audit first** and make only error-driven amendments:
   - Check for fake/non-existent sources.
   - Check for wrong author/title/year/volume/issue/page/court/jurisdiction metadata.
-  - Check for wrong source type formatting under OSCOLA.
+  - Check for wrong source type formatting under the active citation style.
   - Avoid unnecessary stylistic rewrites when an entry is already accurate.
-- **OSCOLA bibliography rules:**
+- **When OSCOLA is the active style, apply OSCOLA bibliography rules:**
   - Divide into sections by source type: **Primary Sources** (Cases, Legislation, Treaties) and **Secondary Sources** (Books, Chapters in edited books, Journal articles, Online sources, etc.).
   - Within each section, list alphabetically by author surname (or case name / legislation title for primary sources).
   - Do NOT include pinpoint page references in bibliography entries (those belong only in footnotes).
@@ -196,8 +196,8 @@ Using the essay question (if provided) as the benchmark, review:
 ### 3D — Bibliography generation (if none exists)
 - If the essay has **no bibliography / reference list** and the user requests one (or if the essay is academic and a bibliography is expected):
   1. Compile every unique source cited across all footnotes.
-  2. Generate a complete bibliography in **OSCOLA** format.
-  3. Organise into the correct OSCOLA sections: **Primary Sources** (Cases, Legislation, Treaties) and **Secondary Sources** (Books, Chapters, Journal Articles, Online Sources, etc.).
+  2. Generate a complete bibliography in the active citation style (default OSCOLA).
+  3. If OSCOLA is active, organise into OSCOLA sections: **Primary Sources** (Cases, Legislation, Treaties) and **Secondary Sources** (Books, Chapters, Journal Articles, Online Sources, etc.).
   4. Sort alphabetically within each section.
   5. Append the bibliography at the end of the essay.
   6. Log in the changelog: `Bibliography generated from X footnote sources.`
@@ -206,7 +206,7 @@ Using the essay question (if provided) as the benchmark, review:
 - Verify internal cross-references ("as discussed in Part II above" — does Part II actually discuss that?).
 - Check that any "see above" / "see below" / "supra" / "infra" references are accurate.
 
-**Output:** Revised text with footnotes and bibliography corrected in OSCOLA. Changelog listing every citation fix. A separate "Verification flags" list for any claims or citations that could not be fully verified (with suggestions).
+**Output:** Revised text with footnotes and bibliography corrected in the active citation style (default OSCOLA). Changelog listing every citation fix. A separate "Verification flags" list for any claims or citations that could not be fully verified (with suggestions).
 
 ### 3F — Verification gate before amendment delivery
 - Build a verification ledger for all substantive claims and footnotes with statuses: `Verified`, `Corrected+Verified`, or `Unverified`.
@@ -303,7 +303,7 @@ Present a structured summary of all changes, organised by pass:
 - [list key corrections]
 - **Verification flags:** [any items requiring user confirmation]
 - **Verification ledger summary:** [Verified: X | Corrected+Verified: Y | Unverified: Z]
-- **OSCOLA compliance check:** [Pass/Fail, with any corrected non-OSCOLA entries]
+- **Citation-style compliance check:** [Pass/Fail, with any corrected non-compliant entries under active style]
 
 ### Pass 4 — Final Holistic (X changes)
 - [list any final adjustments]
@@ -368,14 +368,14 @@ If any required file is missing, generate it first and only then return completi
 - **If no essay question is provided:** Infer the topic and thesis from the essay itself, and evaluate structure and content against that inferred thesis. State your inference and ask the user to confirm.
 - **Terminal prompt scope is authoritative.** Apply amendments according to the latest terminal prompt instructions first (including include/exclude directives and word-count constraints).
 - **If bibliography/abbreviations are supplied but marked as excluded:** do not amend those excluded sections, but still check and report accuracy, coherence, structure relevance, and citation integrity issues found there.
-- **Citation style: OSCOLA only.** All footnotes and bibliography entries must be in OSCOLA. If the existing essay uses a different style, convert everything to OSCOLA. If mixed styles are found, normalise to OSCOLA.
-- **Bibliography-only mode (when requested):** prioritise verification and error detection over rewriting. Amend only entries with identified issues (fake source, wrong metadata, wrong OSCOLA format).
-- **OSCOLA bibliography ending punctuation:** do not place a full stop at the end of bibliography entries.
+- **Citation style:** follow the user-requested style; if no style is requested, default to OSCOLA. If mixed styles are found, normalise to the active style.
+- **Bibliography-only mode (when requested):** prioritise verification and error detection over rewriting. Amend only entries with identified issues (fake source, wrong metadata, wrong citation-style format).
+- **When OSCOLA is the active style:** do not place a full stop at the end of bibliography entries.
 - **Quote style in bibliography edits:** prefer typographic curly quotes/apostrophes (`‘…’`, `’`) rather than straight quotes.
-- **Jurisdiction awareness:** If the essay is legal in nature, detect the jurisdiction from context (cases cited, legislation referenced) and ensure authorities and legal terminology are jurisdiction-accurate while keeping OSCOLA formatting.
+- **Jurisdiction awareness:** If the essay is legal in nature, detect the jurisdiction from context (cases cited, legislation referenced) and ensure authorities and legal terminology are jurisdiction-accurate while keeping the active citation style formatting (default OSCOLA).
 - **No word count limit on the review process.** However many words the user wrote is how many words you review and output.
 - **If the user requests a specific final word count or gives an essay word limit:** Keep the amended output near that target/limit (default tolerance about ±2% unless the user asks for stricter matching). If a maximum limit is given, do not exceed it.
-- **If the user asks to amend/implement improvements:** treat this as a request for a top-mark (10/10), professionally excellent lawyer-standard refined version, subject to strict verification and OSCOLA-only citation gates above.
+- **If the user asks to amend/implement improvements:** treat this as a request for a top-mark (10/10), professionally excellent lawyer-standard refined version, subject to strict verification and the active citation-style gate above (default OSCOLA if not requested otherwise).
 - **Output location consent is mandatory for amended DOCX.** Before saving any refined document, ask whether Desktop output is allowed. Do not default to saving in `/Users/hltsang/Desktop/Skills`.
 - **General DOCX amendment rule:** inserted/amended text must visually match user local style in font and size; amendment markup must be additive only and must not alter local typography.
 - **If the DOCX contains images, tables, or charts:** Note their presence and positions but focus review on text content. Flag if any caption or label contains errors.
